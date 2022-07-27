@@ -1,9 +1,15 @@
 import React,{Component} from 'react'
-import { View, Text,StyleSheet,StatusBar } from 'react-native'
+import { View, Text,StyleSheet,StatusBar,Alert } from 'react-native'
 import params from './src/params'
-import Field from './src/Components/Field'
 import MineField from './src/Components/MineField'
-import { minasPlantadas } from './src/logica_jogo'
+import { 
+    createMineBoard,
+    cloneBoard,
+    openField,
+    hadExplosion,
+    wonGame,
+    showMines 
+} from './src/logica_jogo'
 
 export default class App extends Component{
 
@@ -12,18 +18,34 @@ export default class App extends Component{
         this.state = this.createState()
     }
 
-    qtdeMines =()=>{
-        const linhas = params.getRowsAmount
-        const colunas = params.getColumnsAmount
-        return Math.ceil(linhas * colunas * params.difficultLevel)
+    minesAmount =()=>{
+        const cols = params.getColumnsAmount
+        const rows = params.getRowsAmount
+        return Math.ceil(rows * cols * params.difficultLevel)
     }
 
     createState = ()=>{
-        const linhas = params.getRowsAmount()
-        const colunas = params.getColumnsAmount()
+        const rows = params.getRowsAmount()
+        const cols = params.getColumnsAmount()
         return{
-            tabuleiro: minasPlantadas(linhas, colunas, this.qtdeMines())
+            board: createMineBoard(rows, cols, this.minesAmount()),
+            won:false,
+            lost:false,
         }
+    }
+    onOpenField = (row,column)=>{
+        const board = cloneBoard(this.state.board)
+        openField(board,row,column)
+        const lost = hadExplosion(board)
+        const won = wonGame(board)
+        if(lost){
+            showMines(board)
+            Alert.alert('GAME OVER!!')
+        }
+        if(won){
+            Alert.alert('YOU WIN!!')
+        }
+        this.setState({board,lost, won})
     }
 
 
@@ -33,11 +55,14 @@ export default class App extends Component{
                 <StatusBar/>
                 <Text style={styles.welcome}>Iniciando Mines!</Text>
                 <Text style = {styles.introduction}>
-                    tamanho do campo: 
+                    tamanho do campo:# 
                     {params.getRowsAmount()}x{params.getColumnsAmount()}
+                    #
                 </Text>
+
                 <View style={styles.board}>
-                    <MineField tabuleiro = {this.state.tabuleiro}/>
+                    <MineField board = {this.state.board} 
+                        onOpenField={this.onOpenField}/>
                 </View>
             </View>
         )
