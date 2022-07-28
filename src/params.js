@@ -8,11 +8,13 @@ const params = {
     difficultLevel:0.1,
     getColumnsAmount(){
         const width = Dimensions.get('window').width
+        // console.warn('passou pelo coluns amount')
         return Math.floor( width / this.blockSize)
     },
     getRowsAmount(){
         const totalHeingth = Dimensions.get('window').height
         const borderHeight = totalHeingth *(1-this.headerRatio)
+        // console.warn(Math.floor(borderHeight / this.blockSize))
         return Math.floor(borderHeight / this.blockSize)    //olhar depois pq dividido por 30
     }
 }
